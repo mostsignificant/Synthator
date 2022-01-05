@@ -1,0 +1,6 @@
+[submodule "External/ChaiScript"]
+	path = External/ChaiScript
+	url = https://github.com/ChaiScript/ChaiScript.git
+[submodule "External/JUCE"]
+	path = External/JUCE
+	url = https://github.com/juce-framework/JUCE.git
