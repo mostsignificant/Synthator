@@ -1,25 +1,26 @@
 #include "SynthProcessor.hpp"
+#include "Editor.hpp"
+#include "Params.hpp"
 #include "SynthSound.hpp"
 #include "SynthVoice.hpp"
-#include "Editor.hpp"
 
 SynthProcessor::SynthProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", AudioChannelSet::stereo(), true)
-                     #endif
-                       )
+    : AudioProcessor(BusesProperties()
+#if !JucePlugin_IsMidiEffect
+#if !JucePlugin_IsSynth
+                         .withInput("Input", AudioChannelSet::stereo(), true)
+#endif
+                         .withOutput("Output", AudioChannelSet::stereo(), true)
+#endif
+      )
 #endif
 {
-    synth.addSound (new SynthSound());
-    
+    synth.addSound(new SynthSound());
+
     for (int i = 0; i < 8; i++)
     {
-        synth.addVoice (new SynthVoice());
+        synth.addVoice(new SynthVoice());
     }
 }
 
@@ -30,29 +31,29 @@ const String SynthProcessor::getName() const
 
 bool SynthProcessor::acceptsMidi() const
 {
-   #if JucePlugin_WantsMidiInput
+#if JucePlugin_WantsMidiInput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool SynthProcessor::producesMidi() const
 {
-   #if JucePlugin_ProducesMidiOutput
+#if JucePlugin_ProducesMidiOutput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool SynthProcessor::isMidiEffect() const
 {
-   #if JucePlugin_IsMidiEffect
+#if JucePlugin_IsMidiEffect
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 double SynthProcessor::getTailLengthSeconds() const
@@ -62,8 +63,8 @@ double SynthProcessor::getTailLengthSeconds() const
 
 int SynthProcessor::getNumPrograms()
 {
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    return 1; // NB: some hosts don't cope very well if you tell them there are 0 programs,
+              // so this should be at least 1, even if you're not really implementing programs.
 }
 
 int SynthProcessor::getCurrentProgram()
@@ -71,28 +72,30 @@ int SynthProcessor::getCurrentProgram()
     return 0;
 }
 
-void SynthProcessor::setCurrentProgram (int index)
+void SynthProcessor::setCurrentProgram(int index)
 {
 }
 
-const String SynthProcessor::getProgramName (int index)
+const String SynthProcessor::getProgramName(int index)
 {
     return {};
 }
 
-void SynthProcessor::changeProgramName (int index, const String& newName)
+void SynthProcessor::changeProgramName(int index, const String &newName)
 {
 }
 
-void SynthProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void SynthProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    synth.setCurrentPlaybackSampleRate (sampleRate);
-    
+    Params::init(*this);
+
+    synth.setCurrentPlaybackSampleRate(sampleRate);
+
     for (int i = 0; i < synth.getNumVoices(); i++)
     {
-        if (auto voice = dynamic_cast<SynthVoice*>(synth.getVoice(i)))
+        if (auto voice = dynamic_cast<SynthVoice *>(synth.getVoice(i)))
         {
-            voice->prepareToPlay (sampleRate, samplesPerBlock, getTotalNumOutputChannels());
+            voice->prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
         }
     }
 }
@@ -104,39 +107,39 @@ void SynthProcessor::releaseResources()
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool SynthProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool SynthProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
 {
-  #if JucePlugin_IsMidiEffect
-    ignoreUnused (layouts);
+#if JucePlugin_IsMidiEffect
+    ignoreUnused(layouts);
     return true;
-  #else
+#else
     // This is the place where you check if the layout is supported.
     // In this template code we only support mono or stereo.
-    if (layouts.getMainOutputChannelSet() != AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != AudioChannelSet::stereo())
+    if (layouts.getMainOutputChannelSet() != AudioChannelSet::mono() &&
+        layouts.getMainOutputChannelSet() != AudioChannelSet::stereo())
         return false;
 
-    // This checks if the input layout matches the output layout
-   #if ! JucePlugin_IsSynth
+        // This checks if the input layout matches the output layout
+#if !JucePlugin_IsSynth
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
-   #endif
+#endif
 
     return true;
-  #endif
+#endif
 }
 #endif
 
-void SynthProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
+void SynthProcessor::processBlock(AudioBuffer<float> &buffer, MidiBuffer &midiMessages)
 {
     ScopedNoDenormals noDenormals;
 
     for (auto channel = getTotalNumInputChannels(); channel < getTotalNumOutputChannels(); ++channel)
         buffer.clear(channel, 0, buffer.getNumSamples());
 
-    synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
-    
-    if (auto editor = dynamic_cast<Editor*> (getActiveEditor()))
+    synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+
+    if (auto editor = dynamic_cast<Editor *>(getActiveEditor()))
         editor->pushBuffer(buffer);
 }
 
@@ -145,42 +148,40 @@ bool SynthProcessor::hasEditor() const
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-AudioProcessorEditor* SynthProcessor::createEditor()
+AudioProcessorEditor *SynthProcessor::createEditor()
 {
-    return new Editor (*this);
+    return new Editor(*this);
 }
 
-void SynthProcessor::getStateInformation (MemoryBlock& destData)
+void SynthProcessor::getStateInformation(MemoryBlock &destData)
 {
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
 }
 
-void SynthProcessor::setStateInformation (const void* data, int sizeInBytes)
+void SynthProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 }
 
-void SynthProcessor::onFormulaChanged (String formula)
+void SynthProcessor::onFormulaChanged(String formula)
 {
     for (auto i = 0; i < synth.getNumVoices(); ++i)
     {
-        if (auto *voice = dynamic_cast<SynthVoice*> (synth.getVoice(i)))
+        if (auto *voice = dynamic_cast<SynthVoice *>(synth.getVoice(i)))
         {
             voice->setFormula(formula);
         }
     }
 }
 
-void SynthProcessor::onFormulaException (String)
+void SynthProcessor::onFormulaException(String)
 {
-    
 }
 
-AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+AudioProcessor *JUCE_CALLTYPE createPluginFilter()
 {
     return new SynthProcessor();
 }
-

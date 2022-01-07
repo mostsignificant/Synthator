@@ -1,8 +1,10 @@
 ########################################################################################################################
-### SYNTHATOR SOURCE
+### SYNTHATOR TARGET
 ########################################################################################################################
 
-juce_add_plugin(${SYNTHATOR_PROJECT_NAME}
+set(TARGET ${SYNTHATOR_PROJECT_NAME})
+
+juce_add_plugin(${TARGET}
     # ICON_BIG ... # ICON_* arguments specify a path to an image file to use as an icon for the Standalone
     # ICON_SMALL ...
     COMPANY_NAME ${SYNTHATOR_AUTHOR_DOMAIN}
@@ -15,42 +17,47 @@ juce_add_plugin(${SYNTHATOR_PROJECT_NAME}
     PLUGIN_MANUFACTURER_CODE Most
     PLUGIN_CODE Stor
     FORMATS Standalone # AU VST3
-    PRODUCT_NAME ${SYNTHATOR_PROJECT_NAME})
+    PRODUCT_NAME ${TARGET})
 
 ########################################################################################################################
 ### SYNTHATOR HEADER, SOURCES, AND COMPILE SETTINGS
 ########################################################################################################################
 
-juce_generate_juce_header(${SYNTHATOR_PROJECT_NAME})
+juce_generate_juce_header(${TARGET})
 
-target_sources(${SYNTHATOR_PROJECT_NAME}
+target_sources(${TARGET}
     PRIVATE
         Editor.cpp
         EditorLookAndFeel.cpp
+        Knob.cpp
         Oscillator.cpp
+        OscillatorComponent.cpp
+        Params.cpp
         SynthProcessor.cpp
         SynthSound.cpp
         SynthVoice.cpp)
 
-target_compile_definitions(${SYNTHATOR_PROJECT_NAME}
+target_compile_definitions(${TARGET}
     PUBLIC
         JUCE_WEB_BROWSER=0 
         JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0)
 
-target_compile_features(${SYNTHATOR_PROJECT_NAME} PRIVATE cxx_std_17)
+target_compile_features(${TARGET} PRIVATE cxx_std_17)
+
+target_include_directories(${TARGET}
+    PRIVATE
+        ${CMAKE_BINARY_DIR})
 
 ########################################################################################################################
 ### SYNTHATOR BINARY DATA FROM RESOURCES FOLDER
 ########################################################################################################################
 
-set(SYNTHATOR_BINARY_DATA "${SYNTHATOR_PROJECT_NAME}Data")
+set(SYNTHATOR_BINARY_DATA "${TARGET}Data")
 
 juce_add_binary_data(${SYNTHATOR_BINARY_DATA}
     SOURCES 
-        ${PROJECT_SOURCE_DIR}/Resources/Fonts/Share/Share-Bold.ttf
-        ${PROJECT_SOURCE_DIR}/Resources/Fonts/Share/Share-BoldItalic.ttf
-        ${PROJECT_SOURCE_DIR}/Resources/Fonts/Share/Share-Italic.ttf
+        ${PROJECT_SOURCE_DIR}/Resources/Fonts/Rubik/Rubik-Regular.ttf
         ${PROJECT_SOURCE_DIR}/Resources/Fonts/Share/Share-Regular.ttf
         ${PROJECT_SOURCE_DIR}/Resources/Fonts/ShareTechMono/ShareTechMono-Regular.ttf)
 
@@ -58,7 +65,7 @@ juce_add_binary_data(${SYNTHATOR_BINARY_DATA}
 ### SYNTHATOR LINK BINARY DATA AND JUCE DATA
 ########################################################################################################################
 
-target_link_libraries(${SYNTHATOR_PROJECT_NAME}
+target_link_libraries(${TARGET}
     PRIVATE
         chaiscript
         ${SYNTHATOR_BINARY_DATA}

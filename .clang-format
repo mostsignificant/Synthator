@@ -1,12 +1,12 @@
 ---
-BasedOnStyle: Google
+BasedOnStyle: Microsoft
 ---
 Language: Cpp
 AccessModifierOffset: -4
 AlignEscapedNewlines: Left
 AlignOperands: true
 AlignTrailingComments: true
-ColumnLimit: 100
+ColumnLimit: 120
 IndentWidth: 4
 UseTab: Never
 ---

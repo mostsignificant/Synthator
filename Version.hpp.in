@@ -1,0 +1,3 @@
+#pragma once
+
+#cmakedefine SYNTHATOR_VERSION "@SYNTHATOR_VERSION@"

@@ -1,37 +1,37 @@
 #include "SynthVoice.hpp"
-#include "SynthSound.hpp"
-#include "SynthProcessor.hpp"
 
-bool SynthVoice::canPlaySound (SynthesiserSound* sound)
+#include "SynthProcessor.hpp"
+#include "SynthSound.hpp"
+
+bool SynthVoice::canPlaySound(SynthesiserSound *sound)
 {
-    return dynamic_cast<SynthSound*>(sound) != nullptr;
+    return dynamic_cast<SynthSound *>(sound) != nullptr;
 }
 
-void SynthVoice::prepareToPlay (double sampleRate, int samplesPerBlock, int outputChannels)
+void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels)
 {
-    chain.reset();
+    osc1.reset();
     envelope.reset();
 
-    const dsp::ProcessSpec spec{
-        sampleRate,
-        static_cast<uint32> (samplesPerBlock),
-        static_cast<uint32> (outputChannels) };
+    const dsp::ProcessSpec spec{sampleRate, static_cast<uint32>(samplesPerBlock),
+                                static_cast<uint32>(outputChannels)};
 
-    chain.prepare (spec);
-    envelope.setParameters (ADSR::Parameters{0.1f, 0.1f, 1.0f, 0.1f});
-    envelope.setSampleRate (spec.sampleRate);
+    osc1.prepare(spec);
+    envelope.setParameters(ADSR::Parameters{0.1f, 0.1f, 1.0f, 0.1f});
+    envelope.setSampleRate(spec.sampleRate);
 }
 
-void SynthVoice::startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition)
+void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound,
+                           int currentPitchWheelPosition)
 {
-    const auto frequency = juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber);
-    chain.get<OscillatorIndex>().setFrequency (frequency);
-    chain.get<OscillatorIndex>().setLevel (velocity);
+    const auto frequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
+    osc1.get<OscillatorIndex>().setFrequency(frequency);
+    osc1.get<OscillatorIndex>().setLevel(velocity);
 
     envelope.noteOn();
 }
 
-void SynthVoice::stopNote (float velocity, bool allowTailOff)
+void SynthVoice::stopNote(float velocity, bool allowTailOff)
 {
     envelope.noteOff();
 
@@ -39,26 +39,26 @@ void SynthVoice::stopNote (float velocity, bool allowTailOff)
         clearCurrentNote();
 }
 
-void SynthVoice::controllerMoved (int controllerNumber, int newControllerValue)
+void SynthVoice::controllerMoved(int controllerNumber, int newControllerValue)
 {
 }
 
-void SynthVoice::pitchWheelMoved (int newPitchWheelValue)
+void SynthVoice::pitchWheelMoved(int newPitchWheelValue)
 {
 }
 
-void SynthVoice::renderNextBlock (AudioBuffer<float> &outputBuffer, int startSample, int numSamples)
+void SynthVoice::renderNextBlock(AudioBuffer<float> &outputBuffer, int startSample, int numSamples)
 {
-    if (! isVoiceActive())
+    if (!isVoiceActive())
         return;
 
-    buffer.setSize (outputBuffer.getNumChannels(), numSamples, false, false, true);
+    buffer.setSize(outputBuffer.getNumChannels(), numSamples, false, false, true);
     buffer.clear();
 
-    dsp::AudioBlock<float> audioblock { buffer };
-    chain.process (dsp::ProcessContextReplacing<float> { audioblock });
+    dsp::AudioBlock<float> audioblock{buffer};
+    osc1.process(dsp::ProcessContextReplacing<float>{audioblock});
 
-    envelope.applyEnvelopeToBuffer (buffer, 0, buffer.getNumSamples());
+    envelope.applyEnvelopeToBuffer(buffer, 0, buffer.getNumSamples());
 
     for (auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
     {
@@ -69,7 +69,7 @@ void SynthVoice::renderNextBlock (AudioBuffer<float> &outputBuffer, int startSam
     }
 }
 
-void SynthVoice::setFormula (String formula)
+void SynthVoice::setFormula(String formula)
 {
-    chain.get<OscillatorIndex>().setFormula(formula);
+    osc1.get<OscillatorIndex>().setFormula(formula);
 }
