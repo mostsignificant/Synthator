@@ -34,5 +34,6 @@ build/
 Build/
 cmake*/
 .idea/
+.vscode/
 _build/
 _Build/
