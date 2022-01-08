@@ -12,8 +12,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
-        build-type: [ Debug, Release ]
+        os: [ macos-latest ]
+        build-type: [ Release ]
 
     env:
       BUILD_TYPE: ${{ matrix.build-type }}
