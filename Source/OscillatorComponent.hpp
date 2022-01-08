@@ -19,6 +19,9 @@ private:
     Knob sustain;
     Knob release;
 
+    TextEditor waveFormula;
+    TextEditor lfoFormula;
+
     AudioProcessorValueTreeState::SliderAttachment attackValue;
     AudioProcessorValueTreeState::SliderAttachment decayValue;
     AudioProcessorValueTreeState::SliderAttachment sustainValue;
