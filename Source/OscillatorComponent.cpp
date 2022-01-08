@@ -7,7 +7,7 @@ namespace
 {
 
 const auto CornerSize = 10.0F;
-const auto LineThickness = 2.0F;
+const auto LineThickness = 3.0F;
 const auto Margin = 10.0F;
 
 auto removeWhitespace(String text) -> String
@@ -62,27 +62,63 @@ void OscillatorComponent::paint(Graphics &gfx)
     // draw divider
 
     gfx.setColour(EditorColours::BlackCoffee);
-    gfx.drawLine(nameLabelSize.getWidth(), LineThickness, nameLabelSize.getWidth(), getHeight() - LineThickness,
+    gfx.drawLine(nameLabelSize.getRight(), LineThickness, nameLabelSize.getRight(), getHeight() - LineThickness,
                  LineThickness);
 
-    // draw wave formula label
+    // draw wave formula
 
-    const auto waveformLabelSize = nameLabelSize + Point<float>(nameLabelSize.getWidth(), 0);
+    const auto waveformLabelSize = Rectangle<float>(nameLabelSize.getRight(), LineThickness * 2, 200, 24);
 
     gfx.setColour(EditorColours::BlackCoffee);
     gfx.setFont(Font(EditorLookAndFeel::getLabelFont()));
     gfx.setFont(16.0F);
 
-    gfx.drawText("Waveform", waveformLabelSize, Justification::centredTop);
+    gfx.drawText("waveform", waveformLabelSize, Justification::centred);
+
+    gfx.setColour(EditorColours::Platinum);
+    gfx.setFont(Font(EditorLookAndFeel::getLabelFont()));
+    gfx.setFont(12.0F);
+
+    gfx.drawText("edit", waveformLabelSize, Justification::right);
+
+    gfx.setColour(EditorColours::Platinum);
+    gfx.setFont(Font(EditorLookAndFeel::getLabelFont()));
+    gfx.setFont(12.0F);
+
+    gfx.drawText("v", waveformLabelSize, Justification::left);
+
+    gfx.setColour(EditorColours::Marigold);
+    gfx.setFont(Font(EditorLookAndFeel::getValueMonospaceFont()));
+    gfx.setFont(24.0F);
+
+    const auto waveformSize = Rectangle<float>(nameLabelSize.getRight(), 0, 200, getHeight());
+
+    gfx.drawText("sin(x)", waveformSize, Justification::centred);
+
+    // draw divider
+
+    gfx.setColour(EditorColours::BlackCoffee);
+    gfx.drawLine(waveformLabelSize.getRight(), LineThickness, waveformLabelSize.getRight(), getHeight() - LineThickness,
+                 LineThickness);
+
+    // draw envelope label
+
+    const auto envelopeLabelSize = Rectangle<float>(waveformLabelSize.getRight(), LineThickness * 2, 200, 24);
+
+    gfx.setColour(EditorColours::BlackCoffee);
+    gfx.setFont(Font(EditorLookAndFeel::getLabelFont()));
+    gfx.setFont(16.0F);
+
+    gfx.drawText("envelope", envelopeLabelSize, Justification::centredTop);
 }
 
 void OscillatorComponent::resized()
 {
 
-    waveFormula.setBounds(50.0F, 0.0F, 75.0F, 75.0F);
+    // waveFormula.setBounds(50.0F, 0.0F, 75.0F, 75.0F);
 
-    attack.setBounds(175.0F, 0.0F, 75.0F, 75.0F);
+    /*attack.setBounds(175.0F, 0.0F, 75.0F, 75.0F);
     decay.setBounds(250.0F, 0.0F, 75.0F, 75.0F);
     sustain.setBounds(325.0F, 0.0F, 75.0F, 75.0F);
-    release.setBounds(400.0F, 0.0F, 75.0F, 75.0F);
+    release.setBounds(400.0F, 0.0F, 75.0F, 75.0F);*/
 }
