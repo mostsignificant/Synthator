@@ -21,7 +21,7 @@ jobs:
     steps:
     - name: Install JUCE requirements for Linux
       if: matrix.os == 'ubuntu-latest'
-      run: sudo apt-get install libfreetype6-dev libx11-dev libxinerama-dev libxrandr-dev
+      run: sudo apt-get install libfreetype6-dev libx11-dev libxinerama-dev libxrandr-dev libxcursor-dev mesa-common-dev libasound2-dev freeglut3-dev libxcomposite-dev libcurl4-openssl-dev
         
     - name: Checkout repository and submodules
       uses: actions/checkout@v2
