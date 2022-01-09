@@ -3,6 +3,7 @@
 Knob::Knob(String label, String unit) : label(label), unit(unit)
 {
     setSliderStyle(Slider::SliderStyle::Rotary);
+    setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 0, 0);
 }
 
 String Knob::getLabel() const

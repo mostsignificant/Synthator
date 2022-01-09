@@ -27,5 +27,10 @@ private:
     AudioProcessorValueTreeState::SliderAttachment sustainValue;
     AudioProcessorValueTreeState::SliderAttachment releaseValue;
 
+    Rectangle<float> nameSize;
+    Rectangle<float> waveformSize;
+    Rectangle<float> envelopeSize;
+    Rectangle<float> lfoSize;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OscillatorComponent)
 };

@@ -84,7 +84,7 @@ void Editor::paintHeader(Graphics &gfx)
 
     // draw version number
 
-    gfx.setFont(Font(EditorLookAndFeel::getLabelFont()));
+    gfx.setFont(Font(EditorLookAndFeel::getMainFont()));
     gfx.setFont(12.0F);
     gfx.setColour(EditorColours::BlackCoffee);
     gfx.drawFittedText(SYNTHATOR_VERSION, Rectangle<int>(getWidth() - height * 3, 0, height * 3, height),
