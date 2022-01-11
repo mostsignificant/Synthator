@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <array>
 
 #include "Oscillator.hpp"
 
@@ -8,14 +9,12 @@ class SynthVoice : public SynthesiserVoice
 {
 public:
     bool canPlaySound(SynthesiserSound *sound) override;
-    void startNote(int midiNoteNumber, float velocity, SynthesiserSound *sound,
-                   int currentPitchWheelPosition) override;
+    void startNote(int midiNoteNumber, float velocity, SynthesiserSound *sound, int currentPitchWheelPosition) override;
     void stopNote(float velocity, bool allowTailOff) override;
     void controllerMoved(int controllerNumber, int newControllerValue) override;
     void pitchWheelMoved(int newPitchWheelValue) override;
     void prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels);
-    void renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample,
-                         int numSamples) override;
+    void renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) override;
     void setFormula(String formula);
 
 private:
@@ -23,11 +22,9 @@ private:
 
     enum
     {
-        OscillatorIndex
+        OscillatorIndex = 0
     };
-    dsp::ProcessorChain<Oscillator> osc1;
-    dsp::ProcessorChain<Oscillator> osc2;
-    dsp::ProcessorChain<Oscillator> osc3;
-    dsp::ProcessorChain<Oscillator> osc4;
-    ADSR envelope;
+
+    std::array<dsp::ProcessorChain<Oscillator>, 4> chains;
+    std::array<ADSR, 4> envelopes;
 };

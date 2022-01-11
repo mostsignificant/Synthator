@@ -19,10 +19,17 @@ auto removeWhitespace(String text) -> String
 
 OscillatorComponent::OscillatorComponent(String name)
     : name(name), attack("Attack", "s"), decay("Decay", "s"), sustain("Sustain", "%"), release("Release", "s"),
-      attackValue(Params::getState(), removeWhitespace(name) + ".attack", attack),
+      tune("Tune", "ct"), pan("Pan", "%"), volume("Volume", "db"), mix("Mix", "%"), lowCut("Low Cut", "Hz"),
+      highCut("High Cut", "db"), attackValue(Params::getState(), removeWhitespace(name) + ".attack", attack),
       decayValue(Params::getState(), removeWhitespace(name) + ".decay", decay),
       sustainValue(Params::getState(), removeWhitespace(name) + ".sustain", sustain),
-      releaseValue(Params::getState(), removeWhitespace(name) + ".release", release)
+      releaseValue(Params::getState(), removeWhitespace(name) + ".release", release),
+      tuneValue(Params::getState(), removeWhitespace(name) + ".tune", tune),
+      panValue(Params::getState(), removeWhitespace(name) + ".pan", pan),
+      volumeValue(Params::getState(), removeWhitespace(name) + ".volume", volume),
+      mixValue(Params::getState(), removeWhitespace(name) + ".mix", mix),
+      lowCutValue(Params::getState(), removeWhitespace(name) + ".lowCut", lowCut),
+      highCutValue(Params::getState(), removeWhitespace(name) + ".highCut", highCut)
 {
     // wave formula
 
@@ -34,6 +41,18 @@ OscillatorComponent::OscillatorComponent(String name)
     addAndMakeVisible(&decay);
     addAndMakeVisible(&sustain);
     addAndMakeVisible(&release);
+
+    // sound
+
+    addAndMakeVisible(&tune);
+    addAndMakeVisible(&pan);
+    addAndMakeVisible(&volume);
+    addAndMakeVisible(&mix);
+
+    // filter
+
+    addAndMakeVisible(&lowCut);
+    addAndMakeVisible(&highCut);
 }
 
 void OscillatorComponent::paint(Graphics &gfx)
@@ -70,13 +89,6 @@ void OscillatorComponent::paint(Graphics &gfx)
 
     gfx.drawText("waveform", waveformSize.reduced(Margin * 0.5, Margin * 0.5), Justification::centredTop);
 
-    gfx.setColour(EditorColours::Platinum);
-    gfx.setFont(Font(EditorLookAndFeel::getMainFont()));
-    gfx.setFont(12.0F);
-
-    gfx.drawText("edit", waveformSize.reduced(Margin * 0.5, Margin * 0.5), Justification::topRight);
-    gfx.drawText("+", waveformSize.reduced(Margin * 0.5, Margin * 0.5), Justification::topLeft);
-
     gfx.setColour(EditorColours::Marigold);
     gfx.setFont(Font(EditorLookAndFeel::getValueMonospaceFont()));
     gfx.setFont(24.0F);
@@ -111,35 +123,66 @@ void OscillatorComponent::paint(Graphics &gfx)
 
     gfx.drawText("lfo", lfoSize.reduced(Margin * 0.5, Margin * 0.5), Justification::centredTop);
 
-    gfx.setColour(EditorColours::Platinum);
-    gfx.setFont(Font(EditorLookAndFeel::getMainFont()));
-    gfx.setFont(12.0F);
-
-    gfx.drawText("edit", lfoSize.reduced(Margin * 0.5, Margin * 0.5), Justification::topRight);
-    gfx.drawText("+", lfoSize.reduced(Margin * 0.5, Margin * 0.5), Justification::topLeft);
-
     gfx.setColour(EditorColours::Marigold);
     gfx.setFont(Font(EditorLookAndFeel::getValueMonospaceFont()));
     gfx.setFont(24.0F);
 
     gfx.drawText("sin(x)", lfoSize, Justification::centred);
+
+    // draw divider
+
+    gfx.setColour(EditorColours::BlackCoffee);
+    gfx.drawLine(lfoSize.getRight(), LineThickness, lfoSize.getRight(), getHeight() - LineThickness, LineThickness);
+
+    // draw sound label
+
+    gfx.setColour(EditorColours::BlackCoffee.brighter());
+    gfx.setFont(Font(EditorLookAndFeel::getMainFont()));
+    gfx.setFont(16.0F);
+
+    gfx.drawText("sound", soundSize.reduced(Margin * 0.5, Margin * 0.5), Justification::centredTop);
+
+    // draw divider
+
+    gfx.setColour(EditorColours::BlackCoffee);
+    gfx.drawLine(soundSize.getRight(), LineThickness, soundSize.getRight(), getHeight() - LineThickness, LineThickness);
+
+    // draw filter label
+
+    gfx.setColour(EditorColours::BlackCoffee.brighter());
+    gfx.setFont(Font(EditorLookAndFeel::getMainFont()));
+    gfx.setFont(16.0F);
+
+    gfx.drawText("filter", filterSize.reduced(Margin * 0.5, Margin * 0.5), Justification::centredTop);
 }
 
 void OscillatorComponent::resized()
 {
     nameSize = Rectangle<float>(0, 0, 60.0F, getHeight());
-    waveformSize = Rectangle<float>(nameSize.getRight(), 0, 200.0F, getHeight());
+    waveformSize = Rectangle<float>(nameSize.getRight() + LineThickness, 0, 200.0F, getHeight());
 
     const auto topMargin = 18.0F;
     const auto bottomMargin = topMargin / 2;
-    const auto size = getHeight() - topMargin - bottomMargin;
+    const auto height = getHeight() - topMargin - bottomMargin;
+    const auto width = height * 0.75;
 
-    envelopeSize = Rectangle<float>(waveformSize.getRight(), 0, size * 4, getHeight());
+    envelopeSize = Rectangle<float>(waveformSize.getRight() + LineThickness, 0, width * 4, getHeight());
 
-    attack.setBounds(envelopeSize.getX(), topMargin, size, size);
-    decay.setBounds(attack.getRight(), topMargin, size, size);
-    sustain.setBounds(decay.getRight(), topMargin, size, size);
-    release.setBounds(sustain.getRight(), topMargin, size, size);
+    attack.setBounds(envelopeSize.getX(), topMargin, width, height);
+    decay.setBounds(attack.getRight(), topMargin, width, height);
+    sustain.setBounds(decay.getRight(), topMargin, width, height);
+    release.setBounds(sustain.getRight(), topMargin, width, height);
 
-    lfoSize = Rectangle<float>(envelopeSize.getRight(), 0, 200.0F, getHeight());
+    lfoSize = Rectangle<float>(envelopeSize.getRight() + LineThickness, 0, 200.0F, getHeight());
+    soundSize = Rectangle<float>(lfoSize.getRight() + LineThickness, 0, width * 4, getHeight());
+
+    tune.setBounds(soundSize.getX(), topMargin, width, height);
+    pan.setBounds(tune.getRight(), topMargin, width, height);
+    volume.setBounds(pan.getRight(), topMargin, width, height);
+    mix.setBounds(volume.getRight(), topMargin, width, height);
+
+    filterSize = Rectangle<float>(soundSize.getRight() + LineThickness, 0, width * 3, getHeight());
+
+    lowCut.setBounds(filterSize.getX(), topMargin, width, height);
+    highCut.setBounds(lowCut.getRight(), topMargin, width, height);
 }

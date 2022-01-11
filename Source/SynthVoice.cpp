@@ -1,5 +1,6 @@
 #include "SynthVoice.hpp"
 
+#include "Params.hpp"
 #include "SynthProcessor.hpp"
 #include "SynthSound.hpp"
 
@@ -10,32 +11,50 @@ bool SynthVoice::canPlaySound(SynthesiserSound *sound)
 
 void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels)
 {
-    osc1.reset();
-    envelope.reset();
+    const dsp::ProcessSpec spec{sampleRate, static_cast<uint32>(samplesPerBlock), static_cast<uint32>(outputChannels)};
 
-    const dsp::ProcessSpec spec{sampleRate, static_cast<uint32>(samplesPerBlock),
-                                static_cast<uint32>(outputChannels)};
+    for (auto &&chain : chains)
+    {
+        chain.reset();
+        chain.prepare(spec);
+    }
 
-    osc1.prepare(spec);
-    envelope.setParameters(ADSR::Parameters{0.1f, 0.1f, 1.0f, 0.1f});
-    envelope.setSampleRate(spec.sampleRate);
+    for (auto &&envelope : envelopes)
+    {
+        envelope.reset();
+        envelope.setParameters(ADSR::Parameters{0.1f, 0.1f, 1.0f, 0.1f});
+        envelope.setSampleRate(spec.sampleRate);
+    }
 }
 
 void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound,
                            int currentPitchWheelPosition)
 {
     const auto frequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
-    osc1.get<OscillatorIndex>().setFrequency(frequency);
-    osc1.get<OscillatorIndex>().setLevel(velocity);
 
-    envelope.noteOn();
+    for (auto &&chain : chains)
+    {
+        chain.get<OscillatorIndex>().setFrequency(frequency);
+        chain.get<OscillatorIndex>().setLevel(velocity);
+    }
+
+    for (auto &&envelope : envelopes)
+    {
+        envelope.noteOn();
+    }
 }
 
 void SynthVoice::stopNote(float velocity, bool allowTailOff)
 {
-    envelope.noteOff();
+    for (auto &&envelope : envelopes)
+    {
+        envelope.noteOff();
+    }
 
-    if (!allowTailOff || !envelope.isActive())
+    const auto envelopeActive =
+        std::any_of(envelopes.begin(), envelopes.end(), [](const auto &envelope) { return envelope.isActive(); });
+
+    if (!allowTailOff || !envelopeActive)
         clearCurrentNote();
 }
 
@@ -56,20 +75,27 @@ void SynthVoice::renderNextBlock(AudioBuffer<float> &outputBuffer, int startSamp
     buffer.clear();
 
     dsp::AudioBlock<float> audioblock{buffer};
-    osc1.process(dsp::ProcessContextReplacing<float>{audioblock});
 
-    envelope.applyEnvelopeToBuffer(buffer, 0, buffer.getNumSamples());
+    for (auto i = 0; i < chains.size(); ++i)
+    {
+        chains[i].process(dsp::ProcessContextReplacing<float>{audioblock});
+        envelopes[i].applyEnvelopeToBuffer(buffer, 0, buffer.getNumSamples());
+    }
+
+    const auto envelopeActive =
+        std::any_of(envelopes.begin(), envelopes.end(), [](const auto &envelope) { return envelope.isActive(); });
 
     for (auto channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
     {
         outputBuffer.addFrom(channel, startSample, buffer, channel, 0, numSamples);
 
-        if (!envelope.isActive())
+        if (!envelopeActive)
             clearCurrentNote();
     }
 }
 
 void SynthVoice::setFormula(String formula)
 {
-    osc1.get<OscillatorIndex>().setFormula(formula);
+    // @todo
+    // osc1.get<OscillatorIndex>().setFormula(formula);
 }

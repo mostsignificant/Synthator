@@ -19,6 +19,14 @@ private:
     Knob sustain;
     Knob release;
 
+    Knob tune;
+    Knob pan;
+    Knob volume;
+    Knob mix;
+
+    Knob lowCut;
+    Knob highCut;
+
     TextEditor waveFormula;
     TextEditor lfoFormula;
 
@@ -27,10 +35,20 @@ private:
     AudioProcessorValueTreeState::SliderAttachment sustainValue;
     AudioProcessorValueTreeState::SliderAttachment releaseValue;
 
+    AudioProcessorValueTreeState::SliderAttachment tuneValue;
+    AudioProcessorValueTreeState::SliderAttachment panValue;
+    AudioProcessorValueTreeState::SliderAttachment volumeValue;
+    AudioProcessorValueTreeState::SliderAttachment mixValue;
+
+    AudioProcessorValueTreeState::SliderAttachment lowCutValue;
+    AudioProcessorValueTreeState::SliderAttachment highCutValue;
+
     Rectangle<float> nameSize;
     Rectangle<float> waveformSize;
     Rectangle<float> envelopeSize;
     Rectangle<float> lfoSize;
+    Rectangle<float> soundSize;
+    Rectangle<float> filterSize;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OscillatorComponent)
 };

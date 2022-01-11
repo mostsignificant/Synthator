@@ -7,7 +7,7 @@ namespace
 
 const auto CornerSize = 10.0F;
 const auto LineThickness = 3.0F;
-const auto Margin = 10.0F;
+const auto margin = 10.0F;
 
 } // namespace
 
@@ -52,6 +52,8 @@ void EditorLookAndFeel::drawRotarySlider(Graphics &gfx, int x, int y, int width,
                                          float sliderPosProportional, float rotaryStartAngle, float rotaryEndAngle,
                                          Slider &slider)
 {
+    const auto margin = 5.0F;
+
     // rotary angles and positions
 
     const auto rotaryOffset = 0.25F;
@@ -82,7 +84,7 @@ void EditorLookAndFeel::drawRotarySlider(Graphics &gfx, int x, int y, int width,
     }
 
     Path completeArc;
-    completeArc.addArc(rx + Margin, ry + Margin, rw - 2 * Margin, rw - 2 * Margin, rotaryStartAngle, rotaryEndAngle,
+    completeArc.addArc(rx + margin, ry + margin, rw - 2 * margin, rw - 2 * margin, rotaryStartAngle, rotaryEndAngle,
                        true);
 
     gfx.setColour(EditorColours::RaisinBlack);
@@ -90,7 +92,7 @@ void EditorLookAndFeel::drawRotarySlider(Graphics &gfx, int x, int y, int width,
                                                PathStrokeType::EndCapStyle::rounded));
 
     Path sliderArc;
-    sliderArc.addArc(rx + Margin, ry + Margin, rw - 2 * Margin, rw - 2 * Margin, valueSliderStart, valueSliderEnd,
+    sliderArc.addArc(rx + margin, ry + margin, rw - 2 * margin, rw - 2 * margin, valueSliderStart, valueSliderEnd,
                      true);
 
     gfx.setColour(EditorColours::ViridianGreen);
@@ -99,9 +101,9 @@ void EditorLookAndFeel::drawRotarySlider(Graphics &gfx, int x, int y, int width,
 
     // draw inner knob
 
-    const auto knobX = rx + Margin * 1.5;
-    const auto knobY = ry + Margin * 1.5;
-    const auto knobSize = rw - 3 * Margin;
+    const auto knobX = rx + margin * 2.0;
+    const auto knobY = ry + margin * 2.0;
+    const auto knobSize = rw - 4.0 * margin;
 
     const ColourGradient knobGradient(EditorColours::RaisinBlack, knobX, knobY, EditorColours::BlackCoffee, knobSize,
                                       knobSize, true);
@@ -114,7 +116,7 @@ void EditorLookAndFeel::drawRotarySlider(Graphics &gfx, int x, int y, int width,
 
     // draw indicator
 
-    const auto indicatorLength = radius - 2.0F * Margin;
+    const auto indicatorLength = radius - 3.0F * margin;
 
     const auto sliderX =
         cos(sliderPos + rotaryStartAngle + rotaryOffset * MathConstants<float>::pi) * indicatorLength + centreX;
