@@ -10,9 +10,16 @@ const auto CornerSize = 10.0F;
 const auto LineThickness = 3.0F;
 const auto Margin = 10.0F;
 
-auto removeWhitespace(String text) -> String
+/**
+ * @brief Turns an oscillator name to the corresponding group name of the params
+ * @example paramify("OSC 1") == "osc1"
+ *
+ * @param text the osciallator name of the component
+ * @return String the param oscillator group name
+ */
+auto paramify(String text) -> String
 {
-    return text.replace(" ", "");
+    return text.toLowerCase().replace(" ", "");
 }
 
 } // namespace
@@ -20,20 +27,21 @@ auto removeWhitespace(String text) -> String
 OscillatorComponent::OscillatorComponent(String name)
     : name(name), attack("Attack", "s"), decay("Decay", "s"), sustain("Sustain", "%"), release("Release", "s"),
       tune("Tune", "ct"), pan("Pan", "%"), volume("Volume", "db"), mix("Mix", "%"), lowCut("Low Cut", "Hz"),
-      highCut("High Cut", "db"), attackValue(Params::getState(), removeWhitespace(name) + ".attack", attack),
-      decayValue(Params::getState(), removeWhitespace(name) + ".decay", decay),
-      sustainValue(Params::getState(), removeWhitespace(name) + ".sustain", sustain),
-      releaseValue(Params::getState(), removeWhitespace(name) + ".release", release),
-      tuneValue(Params::getState(), removeWhitespace(name) + ".tune", tune),
-      panValue(Params::getState(), removeWhitespace(name) + ".pan", pan),
-      volumeValue(Params::getState(), removeWhitespace(name) + ".volume", volume),
-      mixValue(Params::getState(), removeWhitespace(name) + ".mix", mix),
-      lowCutValue(Params::getState(), removeWhitespace(name) + ".lowCut", lowCut),
-      highCutValue(Params::getState(), removeWhitespace(name) + ".highCut", highCut)
+      highCut("High Cut", "db"), attackValue(Params::getState(), paramify(name) + ".attack", attack),
+      decayValue(Params::getState(), paramify(name) + ".decay", decay),
+      sustainValue(Params::getState(), paramify(name) + ".sustain", sustain),
+      releaseValue(Params::getState(), paramify(name) + ".release", release),
+      tuneValue(Params::getState(), paramify(name) + ".tune", tune),
+      panValue(Params::getState(), paramify(name) + ".pan", pan),
+      volumeValue(Params::getState(), paramify(name) + ".volume", volume),
+      mixValue(Params::getState(), paramify(name) + ".mix", mix),
+      lowCutValue(Params::getState(), paramify(name) + ".lowCut", lowCut),
+      highCutValue(Params::getState(), paramify(name) + ".highCut", highCut)
 {
-    // wave formula
+    // waveform
 
-    addAndMakeVisible(&waveFormula);
+    addAndMakeVisible(&waveformButton);
+    waveformButton.setButtonText("sin(x)");
 
     // envelope
 
@@ -41,6 +49,11 @@ OscillatorComponent::OscillatorComponent(String name)
     addAndMakeVisible(&decay);
     addAndMakeVisible(&sustain);
     addAndMakeVisible(&release);
+
+    // lfo
+
+    addAndMakeVisible(&lfoButton);
+    lfoButton.setButtonText("sin(x)");
 
     // sound
 
@@ -89,12 +102,6 @@ void OscillatorComponent::paint(Graphics &gfx)
 
     gfx.drawText("waveform", waveformSize.reduced(Margin * 0.5, Margin * 0.5), Justification::centredTop);
 
-    gfx.setColour(EditorColours::Marigold);
-    gfx.setFont(Font(EditorLookAndFeel::getValueMonospaceFont()));
-    gfx.setFont(24.0F);
-
-    gfx.drawText("sin(x)", waveformSize, Justification::centred);
-
     // draw divider
 
     gfx.setColour(EditorColours::BlackCoffee);
@@ -122,12 +129,6 @@ void OscillatorComponent::paint(Graphics &gfx)
     gfx.setFont(16.0F);
 
     gfx.drawText("lfo", lfoSize.reduced(Margin * 0.5, Margin * 0.5), Justification::centredTop);
-
-    gfx.setColour(EditorColours::Marigold);
-    gfx.setFont(Font(EditorLookAndFeel::getValueMonospaceFont()));
-    gfx.setFont(24.0F);
-
-    gfx.drawText("sin(x)", lfoSize, Justification::centred);
 
     // draw divider
 
@@ -160,6 +161,7 @@ void OscillatorComponent::resized()
 {
     nameSize = Rectangle<float>(0, 0, 60.0F, getHeight());
     waveformSize = Rectangle<float>(nameSize.getRight() + LineThickness, 0, 200.0F, getHeight());
+    waveformButton.setBounds(waveformSize.reduced(Margin * 0.5, Margin * 0.5).toNearestInt());
 
     const auto topMargin = 18.0F;
     const auto bottomMargin = topMargin / 2;
@@ -174,6 +176,7 @@ void OscillatorComponent::resized()
     release.setBounds(sustain.getRight(), topMargin, width, height);
 
     lfoSize = Rectangle<float>(envelopeSize.getRight() + LineThickness, 0, 200.0F, getHeight());
+    lfoButton.setBounds(lfoSize.reduced(Margin * 0.5, Margin * 0.5).toNearestInt());
     soundSize = Rectangle<float>(lfoSize.getRight() + LineThickness, 0, width * 4, getHeight());
 
     tune.setBounds(soundSize.getX(), topMargin, width, height);

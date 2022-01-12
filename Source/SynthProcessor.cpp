@@ -150,7 +150,16 @@ bool SynthProcessor::hasEditor() const
 
 AudioProcessorEditor *SynthProcessor::createEditor()
 {
-    return new Editor(*this);
+    auto *editor = new Editor(*this);
+    if (wrapperType == wrapperType_Standalone)
+    {
+        if (TopLevelWindow::getNumTopLevelWindows() == 1)
+        {
+            auto *window = TopLevelWindow::getTopLevelWindow(0);
+            window->setUsingNativeTitleBar(true);
+        }
+    }
+    return editor;
 }
 
 void SynthProcessor::getStateInformation(MemoryBlock &destData)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "FormulaButton.hpp"
 #include "Knob.hpp"
 #include <JuceHeader.h>
 
@@ -27,8 +28,8 @@ private:
     Knob lowCut;
     Knob highCut;
 
-    TextEditor waveFormula;
-    TextEditor lfoFormula;
+    FormulaButton waveformButton;
+    FormulaButton lfoButton;
 
     AudioProcessorValueTreeState::SliderAttachment attackValue;
     AudioProcessorValueTreeState::SliderAttachment decayValue;

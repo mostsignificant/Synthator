@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <cstddef>
 #include <memory>
 
 class SynthProcessor;
@@ -18,6 +19,8 @@ public:
 
     static auto getState() -> AudioProcessorValueTreeState &;
     static auto getRawParameterValue(StringRef parameterID) -> std::atomic<float> *;
+
+    static auto getEnvelopeValues(std::size_t i) -> ADSR::Parameters;
 
 private:
     static std::unique_ptr<AudioProcessorValueTreeState> state;

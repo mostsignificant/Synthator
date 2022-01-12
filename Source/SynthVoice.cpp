@@ -19,11 +19,11 @@ void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outpu
         chain.prepare(spec);
     }
 
-    for (auto &&envelope : envelopes)
+    for (auto i = 0; i < envelopes.size(); ++i)
     {
-        envelope.reset();
-        envelope.setParameters(ADSR::Parameters{0.1f, 0.1f, 1.0f, 0.1f});
-        envelope.setSampleRate(spec.sampleRate);
+        envelopes[i].reset();
+        envelopes[i].setParameters(Params::getEnvelopeValues(i));
+        envelopes[i].setSampleRate(spec.sampleRate);
     }
 }
 
@@ -70,6 +70,11 @@ void SynthVoice::renderNextBlock(AudioBuffer<float> &outputBuffer, int startSamp
 {
     if (!isVoiceActive())
         return;
+
+    for (auto i = 0; i < envelopes.size(); ++i)
+    {
+        envelopes[i].setParameters(Params::getEnvelopeValues(i));
+    }
 
     buffer.setSize(outputBuffer.getNumChannels(), numSamples, false, false, true);
     buffer.clear();

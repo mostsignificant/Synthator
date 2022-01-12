@@ -1,5 +1,6 @@
 #include "EditorLookAndFeel.hpp"
 #include "EditorColours.hpp"
+#include "FormulaButton.hpp"
 #include "Knob.hpp"
 
 namespace
@@ -178,11 +179,13 @@ Slider::SliderLayout EditorLookAndFeel::getSliderLayout(Slider &slider)
 void EditorLookAndFeel::drawButtonBackground(Graphics &gfx, Button &button, const Colour &backgroundColour,
                                              bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
 {
-    const ColourGradient buttonGradient(EditorColours::BlackCoffee, 0, 0, EditorColours::RaisinBlack, 0,
-                                        button.getHeight(), false);
+    if (const auto *fb = dynamic_cast<FormulaButton *>(&button))
+    {
+        return; // no background
+    }
 
-    gfx.setGradientFill(buttonGradient);
-    gfx.fillRect(0, 0, button.getWidth(), button.getHeight());
+    LookAndFeel_V4::drawButtonBackground(gfx, button, backgroundColour, shouldDrawButtonAsHighlighted,
+                                         shouldDrawButtonAsDown);
 }
 
 void EditorLookAndFeel::drawGroupComponentOutline(Graphics &gfx, int width, int height, const String &text,
