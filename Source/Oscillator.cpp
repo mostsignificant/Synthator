@@ -6,35 +6,10 @@ Oscillator::Oscillator() : formula("tanh(sin(x))")
     initOscillator();
 }
 
-void Oscillator::prepare(const dsp::ProcessSpec &spec)
-{
-    chain.prepare(spec);
-}
-
-void Oscillator::process(const dsp::ProcessContextReplacing<float> &context) noexcept
-{
-    chain.process(context);
-}
-
-void Oscillator::reset() noexcept
-{
-    chain.reset();
-}
-
 void Oscillator::setFormula(String formula)
 {
     this->formula = formula;
     initOscillator();
-}
-
-void Oscillator::setFrequency(float frequency)
-{
-    chain.get<OscillatorIndex>().setFrequency(frequency);
-}
-
-void Oscillator::setLevel(float level)
-{
-    chain.get<GainIndex>().setGainLinear(level);
 }
 
 void Oscillator::initChaiscript()
@@ -56,8 +31,7 @@ void Oscillator::initChaiscript()
 
 void Oscillator::initOscillator()
 {
-    auto &oscillator = chain.get<OscillatorIndex>();
-    oscillator.initialise(
+    initialise(
         [this](float x) {
             this->var = x;
 

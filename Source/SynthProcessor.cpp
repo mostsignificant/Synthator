@@ -156,7 +156,7 @@ AudioProcessorEditor *SynthProcessor::createEditor()
         if (TopLevelWindow::getNumTopLevelWindows() == 1)
         {
             auto *window = TopLevelWindow::getTopLevelWindow(0);
-            window->setUsingNativeTitleBar(true);
+            // window->setUsingNativeTitleBar(true);
         }
     }
     return editor;

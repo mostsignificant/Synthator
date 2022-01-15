@@ -18,9 +18,9 @@ public:
     static void deinit();
 
     static auto getState() -> AudioProcessorValueTreeState &;
-    static auto getRawParameterValue(StringRef parameterID) -> std::atomic<float> *;
 
     static auto getEnvelopeValues(std::size_t i) -> ADSR::Parameters;
+    static auto getMixValue(std::size_t i) -> float;
 
 private:
     static std::unique_ptr<AudioProcessorValueTreeState> state;

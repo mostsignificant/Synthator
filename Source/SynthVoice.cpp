@@ -35,7 +35,6 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
     for (auto &&chain : chains)
     {
         chain.get<OscillatorIndex>().setFrequency(frequency);
-        chain.get<OscillatorIndex>().setLevel(velocity);
     }
 
     for (auto &&envelope : envelopes)
@@ -79,12 +78,23 @@ void SynthVoice::renderNextBlock(AudioBuffer<float> &outputBuffer, int startSamp
     buffer.setSize(outputBuffer.getNumChannels(), numSamples, false, false, true);
     buffer.clear();
 
-    dsp::AudioBlock<float> audioblock{buffer};
+    auto audioblock = dsp::AudioBlock<float>{buffer};
 
-    for (auto i = 0; i < chains.size(); ++i)
+    auto *left = buffer.getWritePointer(0, 0);
+    auto *right = buffer.getWritePointer(1, 0);
+
+    for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
     {
-        chains[i].process(dsp::ProcessContextReplacing<float>{audioblock});
-        envelopes[i].applyEnvelopeToBuffer(buffer, 0, buffer.getNumSamples());
+        auto value = 0.0F;
+
+        for (auto i = 0; i < chains.size(); ++i)
+        {
+            value += chains[i].get<OscillatorIndex>().processSample(left[sample]) * envelopes[i].getNextSample() *
+                     Params::getMixValue(i);
+        }
+
+        left[sample] = value;
+        right[sample] = value;
     }
 
     const auto envelopeActive =

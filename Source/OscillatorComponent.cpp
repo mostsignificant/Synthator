@@ -6,7 +6,7 @@
 namespace
 {
 
-const auto CornerSize = 10.0F;
+const auto CornerSize = 6.0F;
 const auto LineThickness = 3.0F;
 const auto Margin = 10.0F;
 

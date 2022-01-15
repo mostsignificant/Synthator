@@ -34,6 +34,13 @@ const std::array OscillatorReleaseParamIDs = {
     "osc4.release",
 };
 
+const std::array OscillatorMixParamIDs = {
+    "osc1.mix",
+    "osc2.mix",
+    "osc3.mix",
+    "osc4.mix",
+};
+
 } // namespace
 
 void Params::init(SynthProcessor &processor)
@@ -60,6 +67,11 @@ void Params::init(SynthProcessor &processor)
     params.push_back(std::make_unique<AudioParameterFloat>(OscillatorReleaseParamIDs[2], "release", 0.0f, 10.0f, 0.1f));
     params.push_back(std::make_unique<AudioParameterFloat>(OscillatorReleaseParamIDs[3], "release", 0.0f, 10.0f, 0.1f));
 
+    params.push_back(std::make_unique<AudioParameterInt>(OscillatorMixParamIDs[0], "mix", 0, 100, 100));
+    params.push_back(std::make_unique<AudioParameterInt>(OscillatorMixParamIDs[1], "mix", 0, 100, 100));
+    params.push_back(std::make_unique<AudioParameterInt>(OscillatorMixParamIDs[2], "mix", 0, 100, 100));
+    params.push_back(std::make_unique<AudioParameterInt>(OscillatorMixParamIDs[3], "mix", 0, 100, 100));
+
     state = std::make_unique<AudioProcessorValueTreeState>(
         processor, nullptr, "Params", AudioProcessorValueTreeState::ParameterLayout(params.begin(), params.end()));
 }
@@ -74,15 +86,15 @@ auto Params::getState() -> AudioProcessorValueTreeState &
     return *state;
 }
 
-auto Params::getRawParameterValue(StringRef parameterID) -> std::atomic<float> *
-{
-    return state->getRawParameterValue(parameterID);
-}
-
 auto Params::getEnvelopeValues(const size_t i) -> ADSR::Parameters
 {
     return {*state->getRawParameterValue(OscillatorAttackParamIDs[i]),
             *state->getRawParameterValue(OscillatorDecayParamIDs[i]),
             *state->getRawParameterValue(OscillatorSustainParamIDs[i]) / 100.0F,
             *state->getRawParameterValue(OscillatorReleaseParamIDs[i])};
+}
+
+auto Params::getMixValue(std::size_t i) -> float
+{
+    return *state->getRawParameterValue(OscillatorMixParamIDs[i]) / 100.0F;
 }
